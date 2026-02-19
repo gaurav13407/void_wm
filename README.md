@@ -1,4 +1,4 @@
-# MyCompositor
+# void_wm
 
 A custom Wayland compositor built from scratch using wlroots 0.20.
 Built on Ubuntu 24.04 as a foundation for a Hyprland-like compositor.
@@ -18,7 +18,7 @@ make
 
 ## Run
 ```bash
-./tinywl -s alacritty
+./void_wm -s alacritty
 ```
 
 ## Controls
