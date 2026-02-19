@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <wlr/types/wlr_compositor.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -24,6 +25,12 @@
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
+
+#define BORDER_WIDTH 2 
+#define BORDER_COLOR_R 0.5 
+#define BORDER_COLOR_G 0.0 
+#define BORDER_COLOR_B 1.0 
+#define BORDER_COLOR_A 1.0 
 
 /* For brevity's sake, struct members are annotated where they are used. */
 enum tinywl_cursor_mode {
