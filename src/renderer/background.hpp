@@ -9,6 +9,7 @@ public:
     bool load(const std::string &path);
     void set_color(float r, float g, float b);
     bool is_loaded() const;
+    ~Background();
 
 private:
     RenderBackend backend;

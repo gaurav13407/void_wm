@@ -1,7 +1,8 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "background.hpp"
 #include <iostream>
 #include <fstream>
-
+#include "stb_image.h"
 Background::Background(RenderBackend backend) {
     this->backend  = backend;
     this->loaded   = false;
@@ -14,7 +15,15 @@ Background::Background(RenderBackend backend) {
     this->color_b  = 0.10f;
 }
 
+Background::~Background(){
+    if(pixels !=nullptr){
+        stbi_image_free(pixels);
+        pixels=nullptr;
+    }
+}
+
 bool Background::load(const std::string &path) {
+    // Check file exists first
     std::ifstream f(path);
     if (!f.good()) {
         std::cerr << "Background: file not found: " << path << "\n";
@@ -22,24 +31,47 @@ bool Background::load(const std::string &path) {
     }
     f.close();
 
-    std::cout << "Background: loading image: " << path << "\n";
-    std::cout << "Background: using backend: ";
+    // Free any previously loaded image
+    if (pixels != nullptr) {
+        stbi_image_free(pixels);
+        pixels = nullptr;
+    }
 
-    switch (backend) {
-        case RenderBackend::VULKAN:
-            std::cout << "Vulkan (GPU)\n";
-            break;
-        case RenderBackend::GLES2:
-            std::cout << "OpenGL ES 2 (GPU)\n";
-            break;
-        case RenderBackend::PIXMAN:
-            std::cout << "Pixman (CPU)\n";
-            break;
+    // Load image from disk into CPU memory
+    // stbi_load returns raw RGBA pixel data
+    pixels = stbi_load(path.c_str(), &width, &height, &channels, 4);
+
+    if (pixels == nullptr) {
+        std::cerr << "Background: failed to decode image: " << path << "\n";
+        std::cerr << "Reason: " << stbi_failure_reason() << "\n";
+        return false;
     }
 
     loaded = true;
+
+    // Print info so we can see it worked
+    std::cout << "Background: image loaded successfully!\n";
+    std::cout << "  Path     : " << path << "\n";
+    std::cout << "  Width    : " << width << "px\n";
+    std::cout << "  Height   : " << height << "px\n";
+    std::cout << "  Channels : " << channels << "\n";
+    std::cout << "  Backend  : " << "\n";
+
+    switch (backend) {
+        case RenderBackend::VULKAN:
+            std::cout << "  Renderer : Vulkan (GPU)\n";
+            break;
+        case RenderBackend::GLES2:
+            std::cout << "  Renderer : OpenGL ES 2 (GPU)\n";
+            break;
+        case RenderBackend::PIXMAN:
+            std::cout << "  Renderer : Pixman (CPU)\n";
+            break;
+    }
+
     return true;
-}
+} 
+
 
 void Background::set_color(float r, float g, float b) {
     this->color_r = r;

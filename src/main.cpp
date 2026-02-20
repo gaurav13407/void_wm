@@ -17,6 +17,9 @@ int main() {
     // Test background
     std::cout << "Testing background...\n\n";
     Background bg(info.backend);
+    bg.set_color(0.05f, 0.05f, 0.10f);
+    bg.load("src/assests/background/default.jpeg");
+    std::cout << "Image loaded:" <<(bg.is_loaded()? "yes" : "no") << "\n";
 
     // Test solid color
     bg.set_color(0.05f, 0.05f, 0.10f);
