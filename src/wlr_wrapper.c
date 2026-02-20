@@ -12,7 +12,9 @@
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
-
+#include <wlr/types/wlr_output.h>
+#include <wlr/types/wlr_scene.h>
+#include <time.h>
 #include "wlr_wrapper.h"
 
 VoidWM_Display* wm_display_create(void) {
@@ -83,4 +85,77 @@ void wm_display_destroy(VoidWM_Display *display) {
 
 const char* wm_display_add_socket(VoidWM_Display *display) {
     return wl_display_add_socket_auto((struct wl_display*)display);
+}
+void wm_output_init_render(void *output, void *allocator, void *renderer) {
+    wlr_output_init_render(
+        (struct wlr_output*)output,
+        (struct wlr_allocator*)allocator,
+        (struct wlr_renderer*)renderer);
+}
+
+void wm_output_set_mode(void *output) {
+    struct wlr_output *o = (struct wlr_output*)output;
+    struct wlr_output_mode *mode = wlr_output_preferred_mode(o);
+    if (mode) {
+        struct wlr_output_state state;
+        wlr_output_state_init(&state);
+        wlr_output_state_set_mode(&state, mode);
+        wlr_output_state_set_enabled(&state, true);
+        wlr_output_commit_state(o, &state);
+        wlr_output_state_finish(&state);
+    }
+}
+
+void wm_output_enable(void *output) {
+    // mode setting handles enable now in wlroots 0.20
+}
+
+void wm_output_commit(void *output) {
+    // handled in set_mode for wlroots 0.20
+}
+
+void wm_output_commit_state(void *output, void *event) {
+    struct wlr_output_event_request_state *e =
+        (struct wlr_output_event_request_state*)event;
+    wlr_output_commit_state((struct wlr_output*)output, e->state);
+}
+
+void wm_output_layout_add_auto(void *layout, void *output) {
+    wlr_output_layout_add_auto(
+        (struct wlr_output_layout*)layout,
+        (struct wlr_output*)output);
+}
+
+void* wm_scene_output_create(void *scene, void *output) {
+    return (void*)wlr_scene_output_create(
+        (struct wlr_scene*)scene,
+        (struct wlr_output*)output);
+}
+
+void* wm_scene_get_scene_output(void *scene, void *output) {
+    return (void*)wlr_scene_get_scene_output(
+        (struct wlr_scene*)scene,
+        (struct wlr_output*)output);
+}
+
+void wm_scene_output_commit(void *scene_output) {
+    wlr_scene_output_commit(
+        (struct wlr_scene_output*)scene_output, NULL);
+}
+
+void wm_scene_output_send_frame_done(void *scene_output, struct timespec *now) {
+    wlr_scene_output_send_frame_done(
+        (struct wlr_scene_output*)scene_output, now);
+}
+void wm_signal_add_new_output(void *backend, struct wl_listener *listener) {
+    wl_signal_add(&((struct wlr_backend*)backend)->events.new_output, listener);
+}
+
+void wm_signal_add_frame(void *output, struct wl_listener *listener) {
+    wl_signal_add(&((struct wlr_output*)output)->events.frame, listener);
+}
+
+void wm_signal_add_request_state(void *output, struct wl_listener *listener) {
+    wl_signal_add(
+        &((struct wlr_output*)output)->events.request_state, listener);
 }

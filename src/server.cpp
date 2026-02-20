@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "output.hpp"
 #include <iostream>
 
 bool Server::init() {
@@ -35,6 +36,10 @@ bool Server::init() {
     cursor        = wm_cursor_create();
     cursor_mgr    = wm_cursor_mgr_create();
 
+    // Hook up new listener 
+    new_output.notify=on_new_output;
+    wm_signal_add_new_output(backend, &new_output);
+
     std::cout << "Server initialized successfully\n";
     return true;
 }
@@ -59,4 +64,22 @@ void Server::run() {
 void Server::cleanup() {
     wm_display_destroy(display);
     std::cout << "Server cleaned up\n";
+}
+void Server::on_new_output(struct wl_listener *listener, void *data) {
+    Server *server = wl_container_of(listener, server, new_output);
+    void *wlr_output = data;
+
+    Output *output = new Output(server, wlr_output);
+
+    output->frame.notify = [](struct wl_listener *listener, void *data) {
+        Output *out = wl_container_of(listener, out, frame);
+        out->on_frame();
+    };
+    wm_signal_add_frame(wlr_output, &output->frame);
+
+    output->request_state.notify = [](struct wl_listener *listener, void *data) {
+        Output *out = wl_container_of(listener, out, request_state);
+        out->on_request_state(data);
+    };
+    wm_signal_add_request_state(wlr_output, &output->request_state);
 }

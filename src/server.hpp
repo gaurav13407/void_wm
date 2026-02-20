@@ -1,6 +1,8 @@
 #pragma once
 #include "wlr_wrapper.h"
+#include "output.hpp"
 #include <string>
+#include <wayland-server-core.h>
 
 class Server {
 public:
@@ -17,4 +19,7 @@ public:
     VoidWM_Seat         *seat;
     VoidWM_Cursor       *cursor;
     VoidWM_CursorMgr    *cursor_mgr;
+    struct wl_listener new_output;
+private:
+    static void on_new_output(struct wl_listener *listener ,void*data);
 };

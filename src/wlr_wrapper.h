@@ -2,7 +2,8 @@
 
 /* This is a pure C header - safe to include from both C and C++ */
 /* It hides all wlroots types behind void pointers for C++ */
-
+#include <wayland-server-core.h>
+#include <time.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,6 +39,21 @@ void wm_display_run(VoidWM_Display *display);
 void wm_display_destroy(VoidWM_Display *display);
 const char* wm_display_add_socket(VoidWM_Display *display);
 
+
+void  wm_output_init_render(void *output, void *allocator, void *renderer);
+void  wm_output_set_mode(void *output);
+void  wm_output_enable(void *output);
+void  wm_output_commit(void *output);
+void  wm_output_commit_state(void *output, void *event);
+void  wm_output_layout_add_auto(void *layout, void *output);
+void* wm_scene_output_create(void *scene, void *output);
+void* wm_scene_get_scene_output(void *scene, void *output);
+void  wm_scene_output_commit(void *scene_output);
+void  wm_scene_output_send_frame_done(void *scene_output, struct timespec *now);
+
+void wm_signal_add_new_output(void *backend, struct wl_listener *listener);
+void wm_signal_add_frame(void *output, struct wl_listener *listener);
+void wm_signal_add_request_state(void *output, struct wl_listener *listener);
 #ifdef __cplusplus
 }
 #endif

@@ -20,6 +20,7 @@ LDFLAGS += -lm
 
 CPPSRC = src/main.cpp \
          src/server.cpp \
+		 src/output.cpp  \
          src/renderer/renderer.cpp \
          src/renderer/background.cpp
 
