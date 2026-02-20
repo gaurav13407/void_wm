@@ -1,35 +1,28 @@
+#include "server.hpp"
 #include "renderer/renderer.hpp"
 #include "renderer/background.hpp"
 #include <iostream>
 
 int main() {
-    std::cout << "Testing renderer detection...\n\n";
+    std::cout << "void_wm starting...\n\n";
 
+    // Detect GPU
     RendererInfo info = Renderer::detect();
+    std::cout << "GPU      : " << info.gpu_name << "\n";
+    std::cout << "Backend  : " << Renderer::backend_name(info.backend) << "\n\n";
 
-    std::cout << "GPU Name     : " << info.gpu_name << "\n";
-    std::cout << "Has GPU      : " << (info.has_gpu ? "yes" : "no") << "\n";
-    std::cout << "Has Vulkan   : " << (info.has_vulkan ? "yes" : "no") << "\n";
-    std::cout << "Has GLES2    : " << (info.has_gles2 ? "yes" : "no") << "\n";
-    std::cout << "Best Backend : " 
-              << Renderer::backend_name(info.backend) << "\n\n";
-
-    // Test background
-    std::cout << "Testing background...\n\n";
+    // Load background
     Background bg(info.backend);
-    bg.set_color(0.05f, 0.05f, 0.10f);
     bg.load("src/assests/background/default.jpeg");
-    std::cout << "Image loaded:" <<(bg.is_loaded()? "yes" : "no") << "\n";
 
-    // Test solid color
-    bg.set_color(0.05f, 0.05f, 0.10f);
+    // Start compositor
+    Server server;
+    if (!server.init()) {
+        std::cerr << "Failed to init server\n";
+        return 1;
+    }
 
-    // Test loading a fake path to see error handling
-    bg.load("/tmp/test.jpg");
-
-    // Test loading nothing - check fallback
-    std::cout << "Image loaded : " 
-              << (bg.is_loaded() ? "yes" : "no") << "\n";
-
+    server.run();
+    server.cleanup();
     return 0;
 }
