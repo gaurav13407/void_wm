@@ -1,0 +1,26 @@
+[package]
+name = "void_wm"
+version = "0.1.0"
+edition = "2021"
+description = "A Wayland compositor written in Rust using Smithay"
+authors = ["Gaurav"]
+
+[dependencies]
+smithay = { git = "https://github.com/Smithay/smithay.git", default-features = false, features = [
+    "backend_winit",
+    "backend_drm",
+    "backend_libinput",
+    "backend_udev",
+    "backend_egl",
+    "renderer_gl",
+    "renderer_pixman",
+    "wayland_frontend",
+    "desktop",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+calloop = "0.14"
+
+[profile.release]
+opt-level = 3
+lto = true
